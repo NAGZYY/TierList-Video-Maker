@@ -4,6 +4,10 @@ Un outil web simple et sans dépendance pour créer de belles tier lists animée
 
 Conçu pour la chaîne YouTube **Marco & Jay**, ce projet a pour objectif de faciliter la création de tier lists soignées pour les vidéos : classez vos images, personnalisez l'animation et exportez le résultat, sans logiciel spécialisé.
 
+## 🌐 Accès gratuit
+
+Le projet est utilisable gratuitement en ligne : [tierlist-video-maker.jeremyracine2017.workers.dev](https://tierlist-video-maker.jeremyracine2017.workers.dev/).
+
 ## 🧩 Utilisation
 
 1. Ouvrez `index.html` dans un navigateur récent.
