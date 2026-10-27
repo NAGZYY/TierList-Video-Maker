@@ -5,7 +5,11 @@
 *{box-sizing:border-box}body{margin:0;background:#141416;color:#eee;font:14px system-ui,sans-serif}
 #app{display:grid;grid-template-columns:290px 1fr;height:100vh}
 aside{padding:14px;overflow:auto;background:#1c1c20;border-right:1px solid #2c2c32}
-h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a8a96;margin:18px 0 8px}h2:first-child{margin-top:0}
+h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#8a8a96;margin:18px 0 8px;display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none}h2:first-child{margin-top:0}h2:hover{color:#b4b4c0}
+h2 .ch{margin-left:auto;display:flex;transition:transform .15s}h2.closed .ch{transform:rotate(-90deg)}.sec.closed{display:none}
+.lt{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.rs{background:none;border:0;padding:0;width:20px;height:20px;border-radius:5px;color:#8a8a96;display:inline-flex;align-items:center;justify-content:center;flex:none}.rs:hover{background:#2f2f37;color:#fff}.rs.off{visibility:hidden}.rs .i{width:13px;height:13px}
+.i{width:16px;height:16px;flex:none}h2 .i{width:15px;height:15px}button[data-ic]{display:inline-flex;align-items:center;gap:7px}
 label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0;color:#bbb}
 input,select,button{font:inherit}input[type=number],select{background:#2a2a30;color:#eee;border:1px solid #3a3a42;border-radius:6px;padding:4px 6px;width:110px}
 input[type=range]{width:110px}input[type=color]{width:44px;height:26px;border:0;background:none;padding:0}
@@ -18,33 +22,33 @@ canvas{width:100%;display:block;border-radius:10px}
 #dz{width:150px;height:150px;flex:none;border:2px dashed #3a3a46;border-radius:12px;background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;position:relative}#dz.on{border-color:#3b82f6;background:#16213a}#dz.has{cursor:default;border-style:solid;border-color:#2c2c32}#cur{width:100%;height:100%;object-fit:contain}#up{flex-direction:column;align-items:center;gap:6px;text-align:center;color:#aaa;padding:8px}#up svg{width:40px;height:40px;stroke:#3b82f6}
 #tb{display:flex;gap:8px;flex-wrap:wrap}#tb button{width:64px;height:64px;font-size:26px;font-weight:700;color:#fff;text-shadow:0 1px 3px #0006}
 #tb .tg{display:flex;gap:2px;margin-right:8px}#tb .tg button{width:46px;height:64px;font-size:17px;border-radius:7px}
-.rg{display:flex;align-items:center;gap:6px}.rg input[type=range]{width:72px}.rg .rv{width:58px}
+.rg{display:flex;align-items:center;gap:6px;flex:none}.rg input[type=range]{width:72px}.rg .rv{width:58px}
 #nm{background:#2a2a30;color:#fff;border:1px solid #3a3a42;border-radius:6px;padding:6px;width:100%;margin-bottom:8px}
 .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}small{color:#8a8a96}#pgw{display:none;width:100%;align-items:center;gap:10px}#pg{flex:1;height:10px;accent-color:#3b82f6}
 </style></head><body><div id="app">
 <aside>
-<h2>1 · Items</h2>
+<h2 data-ic="image">Items</h2>
 <input type="file" id="files" multiple accept="image/*" hidden>
-<div class="bar"><button class="pri" onclick="files.click()">Importer des images</button><button onclick="resetAll()">Vider</button></div>
+<div class="bar"><button class="pri" data-ic="upload" onclick="files.click()">Importer des images</button><button data-ic="trash" onclick="resetAll()">Vider</button></div>
 <small id="count">Aucun item</small>
-<h2>Classement</h2>
+<h2 data-ic="list">Classement</h2>
 <label>Sous-niveaux (+ / −)<input type="checkbox" data-k="sub"></label>
-<h2>Couleurs</h2><div id="cols"></div>
+<h2 data-ic="palette">Couleurs</h2><div id="cols"></div>
 <label>Fond<input type="color" data-k="bg"></label>
 <label>Fond transparent (export)<input type="checkbox" data-k="transp"></label>
-<h2>Format</h2>
+<h2 data-ic="monitor">Format</h2>
 <label>Résolution<select data-k="h" data-num="1"><option value="1080">1920×1080</option><option value="1440">2560×1440</option><option value="2160">3840×2160</option></select></label>
 <label>Images/s<select data-k="fps" data-num="1"><option>24</option><option>25</option><option>30</option><option>60</option></select></label>
 <label>Image<select data-k="fit"><option value="cover">Remplir (rogner)</option><option value="contain">Entière</option></select></label>
 <label>Afficher les noms<input type="checkbox" data-k="names"></label>
-<h2>Rythme</h2>
+<h2 data-ic="clock">Rythme</h2>
 <label>Vitesse globale<input type="range" min=".5" max="2.5" step=".05" data-k="speed"></label>
 <label>Attente entre items (s)<input type="range" min="0" max="5" step=".1" data-k="wait"></label>
 <label>Apparition (s)<input type="range" min=".1" max="1.2" step=".05" data-k="a"></label>
 <label>Pause révélation (s)<input type="range" min=".1" max="1.5" step=".05" data-k="h"></label>
 <label>Déplacement (s)<input type="range" min=".2" max="1.5" step=".05" data-k="f"></label>
 <label>Éclat final (s)<input type="range" min=".1" max="1.5" step=".05" data-k="g"></label>
-<label>Assombrissement du fond<input type="range" min="0" max="1" step=".05" data-k="dim"></label>
+<label>Obscurité du fond<input type="range" min="0" max="1" step=".05" data-k="dim"></label>
 <label>Durée version finale (s)<input type="number" min="1" max="30" data-k="finalDur" data-num="1"></label>
 <label>Son à l'aperçu<input type="checkbox" data-k="sound"></label>
 <label>Animer en classant<input type="checkbox" data-k="live"></label>
@@ -56,20 +60,53 @@ canvas{width:100%;display:block;border-radius:10px}
 <div class="bar">
 <select id="mode" style="width:auto"><option value="full">Animation complète</option><option value="single">Un seul item</option><option value="final">Version finale</option></select>
 <select id="kSel" style="width:auto"></select>
-<button class="pri" onclick="preview()">▶ Aperçu</button>
-<button onclick="exportPNG()">Export PNG (alpha) → Premiere</button>
-<button onclick="exportVideo()">Export vidéo</button>
-<button onclick="saveRank()">Sauvegarder le projet</button>
-<button onclick="loadIn.click()">Ouvrir un projet</button>
+<button class="pri" data-ic="play" onclick="preview()">Aperçu</button>
+<button data-ic="image" onclick="exportPNG()">Export PNG (alpha)</button>
+<button data-ic="film" onclick="exportVideo()">Export vidéo (.mp4)</button>
+<button data-ic="save" onclick="saveRank()">Sauvegarder le projet</button>
+<button data-ic="folder" onclick="loadIn.click()">Ouvrir un projet (.json)</button>
 <input type="file" id="loadIn" accept=".json,.tierlist" hidden>
 <div id="pgw"><progress id="pg" max="1" value="0"></progress><b id="pgt">0 %</b></div><small id="status"></small></div>
 </main></div>
 <script>
 const $=s=>document.querySelector(s),TN=['S','A','B','C','D','E'];
-const cfg=Object.assign({cols:['#ff4d2e','#ffa22b','#ffd02b','#1db863','#1a9bff','#9b4dff'],bg:'#101012',transp:false,h:1080,fps:30,fit:'cover',names:true,speed:1,a:.45,h_:.45,f:.6,g:.5,finalDur:4,sound:true,live:true,wait:0,dim:.55,sub:false},JSON.parse(localStorage.getItem('tl_cfg')||'{}'));
+const DEF={cols:['#ff4d2e','#ffa22b','#ffd02b','#1db863','#1a9bff','#9b4dff'],bg:'#101012',transp:false,h:1080,fps:30,fit:'cover',names:true,speed:1,a:.45,h_:.45,f:.6,g:.5,finalDur:4,sound:true,live:true,wait:0,dim:.55,sub:false,hold:.45};
+const cfg=Object.assign(structuredClone(DEF),JSON.parse(localStorage.getItem('tl_cfg')||'{}'));
 // ATTENTION: "h" = hauteur; la pause s'appelle "hold"
 if(cfg.hold==null)cfg.hold=.45;
 const st={items:[],pl:[]};const cv=$('#cv'),ctx=cv.getContext('2d');
+// ---------- icônes ----------
+const IC={upload:'<path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/>',
+ trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3"/>',
+ play:'<path d="M7 4l13 8-13 8z" fill="currentColor"/>',
+ image:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6M9 9h.01"/>',
+ film:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/>',
+ save:'<path d="M5 4h11l3 3v13H5zM8 4v5h7V4M8 20v-6h8v6"/>',
+ folder:'<path d="M3 6h6l2 2h10v11H3z"/>',
+ list:'<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
+ palette:'<path d="M12 3a9 9 0 100 18c1.6 0 2.2-1.1 1.6-2.2-.6-1.1 0-2.3 1.4-2.3H17a4 4 0 004-4c0-5-4.1-9.5-9-9.5z"/><path d="M7.5 11h.01M10 7.5h.01M14.5 7.5h.01"/>',
+ monitor:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ chev:'<path d="M6 9l6 6 6-6"/>',
+ undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/>'};
+// petit bouton « remettre par défaut » ajouté à gauche du libellé d'un réglage
+function addReset(inp,isDef,doReset){
+ const lab=inp.closest('label'),sp=document.createElement('span'),b=document.createElement('button');
+ sp.className='lt';b.className='rs';b.type='button';b.title='Remettre par défaut';b.innerHTML=svg('undo');
+ [...lab.childNodes].filter(n=>n.nodeType==3).forEach(n=>sp.appendChild(n));
+ sp.prepend(b);lab.prepend(sp);
+ const upd=()=>b.classList.toggle('off',isDef());
+ b.onclick=()=>{doReset();upd()};upd();return upd}
+const svg=n=>`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
+function initUI(){
+ document.querySelectorAll('[data-ic]').forEach(e=>e.insertAdjacentHTML('afterbegin',svg(e.dataset.ic)));
+ const closed=new Set(cfg.closed||[]);
+ document.querySelectorAll('aside h2').forEach((h,idx)=>{
+  const sec=document.createElement('div');sec.className='sec';let n=h.nextSibling;
+  while(n&&n.tagName!='H2'){const nx=n.nextSibling;sec.appendChild(n);n=nx}
+  h.after(sec);h.insertAdjacentHTML('beforeend','<span class="ch">'+svg('chev')+'</span>');
+  const set=c=>{h.classList.toggle('closed',c);sec.classList.toggle('closed',c)};set(closed.has(idx));
+  h.onclick=()=>{const c=!h.classList.contains('closed');set(c);c?closed.add(idx):closed.delete(idx);cfg.closed=[...closed];save()}})}
 let arm=null; // modificateur armé au clavier : 'start' (+) ou 'end' (−)
 const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),lerp=(a,b,t)=>a+(b-a)*t;
 const eIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,eO=t=>1-Math.pow(1-t,3),eB=t=>{const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2)};
@@ -83,9 +120,15 @@ function bindUI(){
    e.replaceWith(w);w.append(e,n);
    e.addEventListener('input',()=>{n.value=e.value});
    n.oninput=()=>{if(n.value==='')return;e.value=n.value;e.oninput()};
-   n.onchange=()=>{n.value=e.value}}});
+   n.onchange=()=>{n.value=e.value}}
+  const upd=addReset(e,()=>JSON.stringify(cfg[k])==JSON.stringify(DEF[k]),()=>{
+   if(e.type=='checkbox')e.checked=DEF[k];else{e.value=DEF[k];const nn=e.parentNode.querySelector('.rv');if(nn)nn.value=e.value}
+   e.oninput()});
+  const o=e.oninput;e.oninput=()=>{o();upd()}});
  $('#cols').innerHTML=TN.map((t,i)=>`<label>Catégorie ${t}<input type="color" value="${cfg.cols[i]}" data-c="${i}"></label>`).join('');
- document.querySelectorAll('[data-c]').forEach(e=>e.oninput=()=>{cfg.cols[e.dataset.c]=e.value;save();buildTB();idle()});
+ document.querySelectorAll('[data-c]').forEach(e=>{const i=+e.dataset.c;
+  e.oninput=()=>{cfg.cols[i]=e.value;save();buildTB();idle();upd()};
+  const upd=addReset(e,()=>cfg.cols[i]==DEF.cols[i],()=>{e.value=DEF.cols[i];e.oninput()})});
  buildTB();hint()}
 const save=()=>{try{localStorage.setItem('tl_cfg',JSON.stringify(cfg))}catch(e){}};
 function buildTB(){
@@ -203,5 +246,5 @@ async function exportVideo(){const m=$('#mode').value,k=+$('#kSel').value||0;if(
  window.__exp=true;const rec=new MediaRecorder(cv.captureStream(cfg.fps),{mimeType:mt,videoBitsPerSecond:40e6}),ch=[];rec.ondataavailable=e=>ch.push(e.data);
  const done=new Promise(r=>rec.onstop=r);rec.start();status('Enregistrement en temps réel (ne change pas d\'onglet)…');onProg=v=>prog(v*.9);try{await play(m,k,true);onProg=null;prog(.95);status('Finalisation…');await new Promise(r=>setTimeout(r,300));rec.stop();await done}catch(e){onProg=null;rec.state!='inactive'&&rec.stop();prog(null);status('Erreur : '+e.message);throw e}
  dl(new Blob(ch,{type:mt}),'tierlist.'+(mt.includes('mp4')?'mp4':'webm'));prog(1);status('Vidéo enregistrée (fond opaque).');setTimeout(()=>prog(null),2500);idle()}
-bindUI();size();idle();ui();
+initUI();bindUI();size();idle();ui();
 </script></body></html>
