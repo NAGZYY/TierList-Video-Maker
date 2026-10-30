@@ -187,8 +187,9 @@ function render(t,mode,k){
  return info}
 const idle=()=>{window.__exp=false;render(0,'final',0)};
 // ---------- lecture ----------
-let raf=0,tok=0,lastL=-1,ac;
-function beep(t){if(!cfg.sound)return;try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.value=880-t*90;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+.26)}catch(e){}}
+let raf=0,tok=0,lastL=-1,ac,expDest=null,expKeep=null;
+// expDest : pendant l'export vidéo, le son va dans l'enregistrement (et non vers les haut-parleurs)
+function beep(t){if(!cfg.sound)return;try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain();o.type='triangle';o.frequency.value=880-t*90;g.gain.setValueAtTime(.15,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g).connect(expDest||ac.destination);o.start();o.stop(ac.currentTime+.26)}catch(e){}}
 function dur(mode){const T=tm(),n=st.pl.length;return mode=='full'?(n?n*T.D+(n-1)*T.w:0)+.8:mode=='single'?T.D+.2:cfg.finalDur}
 function play(mode,k,silent){return new Promise(res=>{cancelAnimationFrame(raf);const my=++tok,d=dur(mode),t0=performance.now();lastL=-1;
  const loop=now=>{if(my!==tok)return res();const t=Math.min((now-t0)/1000,d),r=render(t,mode,k);
@@ -242,9 +243,15 @@ async function exportPNG(){if(!window.showDirectoryPicker)return alert('Utilise 
  for(let f=0;f<n;f++){render(Math.min(f/cfg.fps,d),m,k);const b=await new Promise(r=>cv.toBlob(r,'image/png')),h=await dir.getFileHandle(`frame_${String(f+1).padStart(5,'0')}.png`,{create:true}),w=await h.createWritable();await w.write(b);await w.close();status(`Export PNG : image ${f+1}/${n}`);prog((f+1)/n)}
  status(`Terminé : ${n} image(s). Premiere : Fichier > Importer, 1re image, cocher « Séquence d'images ».`);prog(1);setTimeout(()=>prog(null),2500);idle()}
 async function exportVideo(){const m=$('#mode').value,k=+$('#kSel').value||0;if(m!='final'&&!st.pl.length)return;
- const mt=['video/mp4;codecs=avc1.640028','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));if(!mt)return alert('Enregistrement vidéo non supporté.');
- window.__exp=true;const rec=new MediaRecorder(cv.captureStream(cfg.fps),{mimeType:mt,videoBitsPerSecond:40e6}),ch=[];rec.ondataavailable=e=>ch.push(e.data);
- const done=new Promise(r=>rec.onstop=r);rec.start();status('Enregistrement en temps réel (ne change pas d\'onglet)…');onProg=v=>prog(v*.9);try{await play(m,k,true);onProg=null;prog(.95);status('Finalisation…');await new Promise(r=>setTimeout(r,300));rec.stop();await done}catch(e){onProg=null;rec.state!='inactive'&&rec.stop();prog(null);status('Erreur : '+e.message);throw e}
- dl(new Blob(ch,{type:mt}),'tierlist.'+(mt.includes('mp4')?'mp4':'webm'));prog(1);status('Vidéo enregistrée (fond opaque).');setTimeout(()=>prog(null),2500);idle()}
+ const mt=['video/mp4;codecs=avc1.640028,mp4a.40.2','video/mp4;codecs=avc1.640028','video/webm;codecs=vp9,opus','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));if(!mt)return alert('Enregistrement vidéo non supporté.');
+ ac=ac||new AudioContext();await ac.resume();expDest=ac.createMediaStreamDestination();
+ // signal quasi inaudible en continu : sans lui, Chrome n'enregistre pas les silences et colle les sons au début
+ {const o=ac.createOscillator(),g=ac.createGain();g.gain.value=.0001;o.connect(g).connect(expDest);o.start();expKeep=o}
+ const stream=cv.captureStream(cfg.fps);expDest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+ window.__exp=true;const rec=new MediaRecorder(stream,{mimeType:mt,videoBitsPerSecond:40e6,audioBitsPerSecond:192000}),ch=[];rec.ondataavailable=e=>ch.push(e.data);
+ const done=new Promise(r=>rec.onstop=r);rec.start();status('Enregistrement en temps réel (ne change pas d\'onglet)…');onProg=v=>prog(v*.9);
+ try{await play(m,k);onProg=null;prog(.95);status('Finalisation…');await new Promise(r=>setTimeout(r,300));rec.stop();await done}
+ catch(e){onProg=null;expDest=null;try{expKeep.stop()}catch(x){}expKeep=null;rec.state!='inactive'&&rec.stop();prog(null);status('Erreur : '+e.message);throw e}
+ expDest=null;try{expKeep.stop()}catch(x){}expKeep=null;dl(new Blob(ch,{type:mt}),'tierlist.'+(mt.includes('mp4')?'mp4':'webm'));prog(1);status('Vidéo enregistrée (avec le son).');setTimeout(()=>prog(null),2500);idle()}
 initUI();bindUI();size();idle();ui();
 </script></body></html>
