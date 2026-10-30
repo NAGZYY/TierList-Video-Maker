@@ -2073,8 +2073,8 @@ function preview(){window.__exp=false;const m=$('#mode').value;if(m=='single'&&!
 function queue(){const d=new Set(st.pl.map(p=>p.id));return st.items.filter(i=>!d.has(i.id))}
 function ui(){const q=queue(),c=q[0];$('#count').textContent=st.items.length?`${st.pl.length} classés / ${st.items.length} (${q.length} restants)`:'Aucun item';
  $('#cur').src=c?c.url:'';$('#cur').style.display=c?'block':'none';$('#up').style.display=c?'none':'flex';$('#dz').classList.toggle('has',!!c);$('#nm').value=c?c.name:'';$('#nm').disabled=!c;
- $('#kSel').innerHTML=st.pl.map((p,i)=>`<option value="${i}">${i+1}. ${byId(p.id).name} (${p.lbl||TN[p.tier]})</option>`).join('');$('#kSel').value=st.pl.length-1}
-$('#nm').oninput=e=>{const c=queue()[0];if(c)c.name=e.target.value};
+ $('#kSel').innerHTML=st.pl.map((p,i)=>`<option value="${i}">${i+1}. ${byId(p.id).name} (${p.lbl||TN[p.tier]})</option>`).join('');$('#kSel').value=st.pl.length-1;persist()}
+$('#nm').oninput=e=>{const c=queue()[0];if(c){c.name=e.target.value;persist()}};
 function place(t,pos){const c=queue()[0];if(!c)return;pos=cfg.sub?(pos||'mid'):'end';arm=null;hint();
  st.pl.push({id:c.id,tier:t,pos,lbl:TN[t]+(cfg.sub?{start:'+',mid:'',end:'−'}[pos]:'')});ui();window.__exp=false;cfg.live?play('single',st.pl.length-1):idle()}
 function undo(){if(st.pl.pop()){ui();idle()}}
@@ -2153,5 +2153,27 @@ async function exportVideo(){
   prog(1);setTimeout(()=>prog(null),2500)
  }catch(e){prog(null);status('Erreur export : '+(e.message||e));try{ve.close()}catch(x){}}
  idle()}
-initUI();bindUI();size();idle();ui();
+// ---------- session automatique : survit au rafraîchissement (F5) ----------
+// Les images sont stockées une seule fois dans IndexedDB ; seuls l'ordre, les noms et le classement sont réécrits à chaque changement.
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open('tl_session',1);r.onupgradeneeded=()=>{r.result.createObjectStore('s');r.result.createObjectStore('img')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const rq=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const txDone=tx=>new Promise((res,rej)=>{tx.oncomplete=res;tx.onerror=tx.onabort=()=>rej(tx.error)});
+let restored=false,ptimer=0,savedIds=new Set();
+function persist(){if(!restored)return;clearTimeout(ptimer);ptimer=setTimeout(async()=>{try{
+ const db=await idb(),tx=db.transaction(['s','img'],'readwrite'),im=tx.objectStore('img'),cur=new Set(st.items.map(i=>i.id));
+ st.items.forEach(i=>{if(!savedIds.has(i.id))im.put({file:i.file,blob:i.blob},i.id)});
+ savedIds.forEach(id=>{if(!cur.has(id))im.delete(id)});
+ tx.objectStore('s').put({order:st.items.map(i=>({id:i.id,file:i.file,name:i.name})),pl:st.pl},'cur');
+ await txDone(tx);savedIds=cur;db.close()}catch(e){}},150)}
+async function restore(){try{
+ const db=await idb(),d=await rq(db.transaction('s').objectStore('s').get('cur'));
+ if(d&&d.order&&d.order.length){status('Restauration de la session…');
+  const im=db.transaction('img').objectStore('img'),recs=await Promise.all(d.order.map(x=>rq(im.get(x.id))));
+  for(let i=0;i<d.order.length;i++){const x=d.order[i],r=recs[i];if(!r)continue;
+   st.items.push({id:x.id,file:x.file,name:x.name,blob:r.blob,bmp:await createImageBitmap(r.blob),url:URL.createObjectURL(r.blob)});savedIds.add(x.id)}
+  st.pl=(d.pl||[]).filter(p=>byId(p.id));status(`Session restaurée : ${st.items.length} items, ${st.pl.length} classés.`)}
+ db.close()}catch(e){}
+ restored=true;ui();idle()}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+initUI();bindUI();size();idle();ui();restore();
 </script></body></html>
