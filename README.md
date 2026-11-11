@@ -20,6 +20,8 @@ Les images importées sont triées par nom de fichier. Aucun serveur ni aucune i
 ## ✨ Fonctionnalités
 
 - Classement dans six catégories personnalisables (S, A, B, C, D et E).
+- **Mode Classement** (bouton « Classement » en haut) : classe les items un par un par rang, avec égalités possibles, titre, colonnes automatiques (ou 1 à 4), couleurs or / argent / bronze, animation d'insertion et SFX. Mêmes exports, sauvegarde navigateur et fichier `.classement.json`.
+- Titres des catégories modifiables (S → GOAT, etc.) dans la section Couleurs.
 - Sous-niveaux permettant d'insérer les éléments au début, au milieu ou à la fin d'une catégorie.
 - Aperçu animé avec réglages de vitesse, rythme, durée, son et apparence.
 - Choix de la résolution, de la fréquence d'images, du fond et du mode d'ajustement des images.
@@ -39,6 +41,12 @@ Les images importées sont triées par nom de fichier. Aucun serveur ni aucune i
 - **Échap** : interrompre l'aperçu en cours.
 
 Les raccourcis **+** et **−** s'utilisent lorsque l'option **Sous-niveaux (+ / −)** est activée.
+
+## 🏆 Mode Classement
+
+- Tape le **rang** voulu (ex : `3`) ou clique sur un bouton de rang : l'image en attente s'insère à cette place et les autres descendent.
+- **`=`** (ou le bouton « Égalité ») : l'image partage le rang choisi. Les items à égalité sont regroupés dans un seul bloc (vignettes côte à côte, noms empilés, mention « ÉGALITÉ », rangs 1, 1, 3…).
+- Retour arrière = annuler, Espace = passer, Entrée = valider un rang à 2 chiffres.
 
 ## 📦 Exports et compatibilité
 
